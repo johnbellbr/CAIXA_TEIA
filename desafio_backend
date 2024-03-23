@@ -1,0 +1,70 @@
+import org.json.JSONObject;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@SpringBootApplication
+@RestController
+public class StringManipulationApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(StringManipulationApplication.class, args);
+    }
+
+    @PostMapping("/api/manipulacao-string")
+    public ResponseEntity<String> manipulateString(@RequestBody StringManipulationRequest request) {
+        JSONObject responseBody = new JSONObject();
+        String input = request.getTexto();
+
+        // Verificar se a string é um palíndromo
+        boolean isPalindrome = checkPalindrome(input);
+        responseBody.put("palindromo", isPalindrome);
+
+        // Contar o número de ocorrências de cada caractere na string
+        Map<Character, Integer> occurrences = countOccurrences(input);
+        JSONObject occurrencesJson = new JSONObject();
+        occurrences.forEach(occurrencesJson::put);
+        responseBody.put("ocorrencias_caracteres", occurrencesJson);
+
+        return ResponseEntity.ok(responseBody.toString());
+    }
+
+    private boolean checkPalindrome(String str) {
+        int i = 0, j = str.length() - 1;
+        while (i < j) {
+            if (str.charAt(i) != str.charAt(j)) {
+                return false;
+            }
+            i++;
+            j--;
+        }
+        return true;
+    }
+
+    private Map<Character, Integer> countOccurrences(String str) {
+        Map<Character, Integer> occurrences = new HashMap<>();
+        for (char c : str.toCharArray()) {
+            occurrences.put(c, occurrences.getOrDefault(c, 0) + 1);
+        }
+        return occurrences;
+    }
+}
+
+class StringManipulationRequest {
+    private String texto;
+
+    public String getTexto() {
+        return texto;
+    }
+
+    public void setTexto(String texto) {
+        this.texto = texto;
+    }
+}
